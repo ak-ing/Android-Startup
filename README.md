@@ -3,6 +3,7 @@ Android应用组件初始化框架，简单、高效的完成组件的初始化�
 通过拓扑排序来完成组件依赖关系的启动顺序
 
 ## 使用
+
 ### 定义初始化任务
 继承自 `AndroidStartup`
 ``` java
@@ -35,7 +36,7 @@ public class Task5 extends AndroidStartup<Void> {
 ```
 
 
-### Manifest中添加配置
+### 方式一： Manifest中添加配置
 ```xml
         <provider
             android:name=".initializer.StartupProvider"
@@ -49,3 +50,18 @@ public class Task5 extends AndroidStartup<Void> {
 
 
 即可自动完成任务的初始化工作
+
+### 方式二： 代码设置
+```java
+ new StartupManager.Builder()
+         .addStartup(new TaskStartup<>(context -> {
+             return "";
+         }))
+         .addStartup(new Task4())
+         .addStartup(new Task3())
+         .addStartup(new Task2())
+         .addStartup(new Task1())
+         .build(this)
+         .start();
+```
+
