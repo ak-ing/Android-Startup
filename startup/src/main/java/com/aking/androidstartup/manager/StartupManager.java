@@ -58,12 +58,12 @@ public class StartupManager {
         }
 
         Class<? extends Startup> startupClass = startup.getClass();
-        Map<Class<? extends Startup>, List<Class<? extends Startup>>> startupChildrenMap = mStartupSortStore.getStartupChildrenMap();
+        Map<Class<? extends Startup>, List<String>> startupChildrenMap = mStartupSortStore.getStartupChildrenMap();
         //通知当前任务的所有子任务
         if (startupChildrenMap.containsKey(startupClass)) {
-            List<Class<? extends Startup>> childStartupCls = startupChildrenMap.get(startupClass);
-            for (Class<? extends Startup> childStartupCl : childStartupCls) {
-                Startup<?> childStartup = mStartupSortStore.getStartupMap().get(childStartupCl);
+            List<String> childStartupCls = startupChildrenMap.get(startupClass);
+            for (String childStartupKey : childStartupCls) {
+                Startup<?> childStartup = mStartupSortStore.getStartupMap().get(childStartupKey);
                 Objects.requireNonNull(childStartup).toNotify();
             }
         }

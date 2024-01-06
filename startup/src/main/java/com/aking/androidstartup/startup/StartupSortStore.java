@@ -17,14 +17,14 @@ public class StartupSortStore {
     /**
      * 任务表原图
      */
-    Map<Class<? extends Startup>, Startup<?>> mStartupMap;
+    Map<String, Startup<?>> mStartupMap;
 
     /**
      * 任务依赖表
      */
-    Map<Class<? extends Startup>, List<Class<? extends Startup>>> mStartupChildrenMap;
+    Map<Class<? extends Startup>, List<String>> mStartupChildrenMap;
 
-    public StartupSortStore(List<Startup<?>> result, Map<Class<? extends Startup>, Startup<?>> startupMap, Map<Class<? extends Startup>, List<Class<? extends Startup>>> startupChildrenMap) {
+    public StartupSortStore(List<Startup<?>> result, Map<String, Startup<?>> startupMap, Map<Class<? extends Startup>, List<String>> startupChildrenMap) {
         mResult = result;
         mStartupMap = startupMap;
         mStartupChildrenMap = startupChildrenMap;
@@ -38,19 +38,19 @@ public class StartupSortStore {
         mResult = result;
     }
 
-    public Map<Class<? extends Startup>, Startup<?>> getStartupMap() {
+    public Map<String, Startup<?>> getStartupMap() {
         return mStartupMap;
     }
 
-    public void setStartupMap(Map<Class<? extends Startup>, Startup<?>> startupMap) {
+    public void setStartupMap(Map<String, Startup<?>> startupMap) {
         mStartupMap = startupMap;
     }
 
-    public Map<Class<? extends Startup>, List<Class<? extends Startup>>> getStartupChildrenMap() {
+    public Map<Class<? extends Startup>, List<String>> getStartupChildrenMap() {
         return mStartupChildrenMap;
     }
 
-    public void setStartupChildrenMap(Map<Class<? extends Startup>, List<Class<? extends Startup>>> startupChildrenMap) {
+    public void setStartupChildrenMap(Map<Class<? extends Startup>, List<String>> startupChildrenMap) {
         mStartupChildrenMap = startupChildrenMap;
     }
 }

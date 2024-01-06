@@ -19,27 +19,27 @@ public class TopologySort {
 
     public static StartupSortStore sort(List<? extends Startup<?>> startupList) {
         //入度表
-        Map<Class<? extends Startup>, Integer> inDegreeMap = new HashMap<>();
+        Map<String, Integer> inDegreeMap = new HashMap<>();
         //0度表
-        Deque<Class<? extends Startup>> zeroDeque = new ArrayDeque<>();
+        Deque<String> zeroDeque = new ArrayDeque<>();
         //任务表
-        Map<Class<? extends Startup>, Startup<?>> startupMap = new HashMap<>();
+        Map<String, Startup<?>> startupMap = new HashMap<>();
         //任务依赖表
-        Map<Class<? extends Startup>, List<Class<? extends Startup>>> startupChildrenMap = new HashMap<>();
+        Map<Class<? extends Startup>, List<String>> startupChildrenMap = new HashMap<>();
         for (Startup<?> startup : startupList) {
-            Class<? extends Startup> startupClass = startup.getClass();
-            startupMap.put(startupClass, startup);
+            String uniqueKey = getUniqueKey(startup);
+            startupMap.put(uniqueKey, startup);
             //记录每个任务的入度数（依赖的任务数）
             int dependenciesCount = startup.getDependenciesCount();
-            inDegreeMap.put(startupClass, dependenciesCount);
+            inDegreeMap.put(uniqueKey, dependenciesCount);
             //记录入度为0的任务
             if (dependenciesCount == 0) {
-                zeroDeque.offer(startupClass);
+                zeroDeque.offer(uniqueKey);
             } else {
                 //遍历本任务的依赖任务，生成任务依赖表
                 for (Class<? extends Startup<?>> parent : startup.dependencies()) {
                     //记录这个父任务的所有子任务
-                    startupChildrenMap.computeIfAbsent(parent, k -> new ArrayList<>()).add(startupClass);
+                    startupChildrenMap.computeIfAbsent(parent, k -> new ArrayList<>()).add(uniqueKey);
                 }
             }
         }
@@ -52,8 +52,9 @@ public class TopologySort {
 
         //处理入度为0的任务
         while (!zeroDeque.isEmpty()) {
-            Class<? extends Startup> cls = zeroDeque.poll();
-            Startup<?> startup = startupMap.get(cls);
+            String zeroKey = zeroDeque.poll();
+            Startup<?> startup = startupMap.get(zeroKey);
+            Class<? extends Startup> cls = startup.getClass();
             if (Objects.requireNonNull(startup).callCreateOnMainThread()) {
                 main.add(startup);
             } else {
@@ -62,12 +63,12 @@ public class TopologySort {
 
             //删除此入度0的任务
             if (startupChildrenMap.containsKey(cls)) {
-                List<Class<? extends Startup>> childStartup = startupChildrenMap.get(cls);
-                for (Class<? extends Startup> childCls : childStartup) {
-                    Integer num = inDegreeMap.get(childCls);
-                    inDegreeMap.put(childCls, num - 1);
+                List<String> childStartup = startupChildrenMap.get(cls);
+                for (String childKey : childStartup) {
+                    Integer num = inDegreeMap.get(childKey);
+                    inDegreeMap.put(childKey, num - 1);
                     if (num - 1 == 0) {
-                        zeroDeque.offer(childCls);
+                        zeroDeque.offer(childKey);
                     }
                 }
             }
@@ -77,4 +78,7 @@ public class TopologySort {
         return new StartupSortStore(result, startupMap, startupChildrenMap);
     }
 
+    private static String getUniqueKey(Startup<?> startup) {
+        return startup.getClass().getName() + "-" + startup.hashCode();
+    }
 }
